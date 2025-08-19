@@ -1,0 +1,71 @@
+import queue
+
+class Patient:
+    def __init__(self, name, age, condition, emergency=False):
+        self.name = name
+        self.age = age
+        self.condition = condition
+        self.emergency = emergency
+
+    def __str__(self):
+        status = "EMERGENCY" if self.emergency else "Regular"
+        return f"{self.name} ({self.age}) - {self.condition} [{status}]"
+
+class HospitalQueue:
+    def __init__(self):
+        self.regular_queue = queue.Queue()
+        self.emergency_queue = queue.Queue()
+
+    def add_patient(self, patient: Patient):
+        if patient.emergency:
+            self.emergency_queue.put(patient)
+        else:
+            self.regular_queue.put(patient)
+        print(f"Patient added: {patient}")
+
+    def serve_patient(self):
+        if not self.emergency_queue.empty():
+            patient = self.emergency_queue.get()
+        elif not self.regular_queue.empty():
+            patient = self.regular_queue.get()
+        else:
+            print("No patients in queue.")
+            return
+        print(f"Serving patient: {patient}")
+
+    def view_queue(self):
+        print("\n--- Current Queue ---")
+        temp_emergency = list(self.emergency_queue.queue)
+        temp_regular = list(self.regular_queue.queue)
+
+        if not temp_emergency and not temp_regular:
+            print("Queue is empty.")
+            return
+
+        print("Emergency Queue:")
+        for patient in temp_emergency:
+            print(f" - {patient}")
+
+        print("Regular Queue:")
+        for patient in temp_regular:
+            print(f" - {patient}")
+        print("---------------------")
+
+
+# Example usage
+if __name__ == "__main__":
+    hq = HospitalQueue()
+
+    # Adding patients
+    hq.add_patient(Patient("John Doe", 30, "Fever"))
+    hq.add_patient(Patient("Jane Smith", 45, "Chest Pain", emergency=True))
+    hq.add_patient(Patient("Alice Johnson", 25, "Cough"))
+    hq.add_patient(Patient("Bob Brown", 70, "Heart Attack", emergency=True))
+
+    # Viewing queue
+    hq.view_queue()
+
+    # Serving patients
+    hq.serve_patient()
+    hq.serve_patient()
+    hq.view_queue()
