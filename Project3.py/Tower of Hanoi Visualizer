@@ -1,0 +1,64 @@
+import matplotlib.pyplot as plt
+import matplotlib.patches as patches
+import time
+
+class TowerOfHanoiVisualizer:
+    def __init__(self, num_disks):
+        self.num_disks = num_disks
+        self.towers = [list(range(num_disks, 0, -1)), [], []]  # Three towers
+        self.moves = []
+        self.fig, self.ax = plt.subplots()
+        self.peg_positions = [1, 3, 5]
+
+    def solve(self):
+        self._hanoi(self.num_disks, 0, 2, 1)
+    
+    def _hanoi(self, n, source, target, auxiliary):
+        if n == 1:
+            self._move_disk(source, target)
+        else:
+            self._hanoi(n - 1, source, auxiliary, target)
+            self._move_disk(source, target)
+            self._hanoi(n - 1, auxiliary, target, source)
+
+    def _move_disk(self, source, target):
+        disk = self.towers[source].pop()
+        self.towers[target].append(disk)
+        self.moves.append((source, target))
+        self._draw_state()
+        time.sleep(0.5)
+
+    def _draw_state(self):
+        self.ax.clear()
+        self.ax.set_xlim(0, 6)
+        self.ax.set_ylim(0, self.num_disks + 3)
+        self.ax.axis('off')
+
+        # Draw pegs
+        for pos in self.peg_positions:
+            self.ax.add_patch(patches.Rectangle((pos - 0.05, 0), 0.1, self.num_disks + 1, color='black'))
+
+        # Draw disks
+        for i, tower in enumerate(self.towers):
+            for j, disk in enumerate(tower):
+                width = disk * 0.5
+                height = 0.4
+                x = self.peg_positions[i] - width / 2
+                y = j * height
+                color = plt.cm.viridis(disk / self.num_disks)
+                self.ax.add_patch(patches.Rectangle((x, y), width, height, color=color, ec='black'))
+
+        plt.pause(0.01)
+
+    def run(self):
+        plt.ion()
+        self._draw_state()
+        self.solve()
+        plt.ioff()
+        plt.show()
+
+# Example usage
+if __name__ == "__main__":
+    num_disks = 4  # You can change the number of disks here
+    hanoi = TowerOfHanoiVisualizer(num_disks)
+    hanoi.run()
